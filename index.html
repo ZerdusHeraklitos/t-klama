@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tıklama Hızı Testi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #clickButton {
+            display: none;
+            padding: 15px 30px;
+            font-size: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tıklama Hızı Testi</h1>
+    <button id="startButton">Testi Başlat</button>
+    <br><br>
+    <button id="clickButton1" style="display: none;">Kullanıcı 1 Tıkla!</button>
+    <button id="clickButton2" style="display: none;">Kullanıcı 2 Tıkla!</button>
+    <div id="result"></div>
+
+    <script>
+        let ws = new WebSocket('ws://localhost:8080');
+        let startTime;
+        let user1Time;
+        let user2Time;
+
+        ws.onmessage = function(event) {
+            let data = event.data.split(':');
+            let action = data[0];
+            let user = data[1];
+
+            if (action === 'start') {
+                startTest();
+            } else if (action === 'click') {
+                userClicked(user);
+            }
+        };
+
+        document.getElementById('startButton').onclick = function() {
+            ws.send('start');
+        };
+
+        document.getElementById('clickButton1').onclick = function() {
+            ws.send('click:user1');
+        };
+
+        document.getElementById('clickButton2').onclick = function() {
+            ws.send('click:user2');
+        };
+
+        function startTest() {
+            startTime = Date.now();
+            document.getElementById("clickButton1").style.display = "inline-block";
+            document.getElementById("clickButton2").style.display = "inline-block";
+        }
+
+        function userClicked(user) {
+            let clickTime = Date.now() - startTime;
+
+            if (user === 'user1') {
+                user1Time = clickTime;
+            } else {
+                user2Time = clickTime;
+            }
+
+            if (user1Time && user2Time) {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            let resultText;
+            if (user1Time < user2Time) {
+                resultText = "Kullanıcı 1 daha hızlı tıkladı!";
+            } else if (user2Time < user1Time) {
+                resultText = "Kullanıcı 2 daha hızlı tıkladı!";
+            } else {
+                resultText = "Her iki kullanıcı da aynı anda tıkladı!";
+            }
+            document.getElementById("result").innerText = resultText;
+        }
+    </script>
+</body>
+</html>
