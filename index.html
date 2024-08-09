@@ -10,11 +10,6 @@
             text-align: center;
             margin-top: 50px;
         }
-        #clickButton {
-            display: none;
-            padding: 15px 30px;
-            font-size: 20px;
-        }
         #result {
             margin-top: 20px;
             font-size: 24px;
@@ -46,6 +41,10 @@
             } else if (action === 'click') {
                 userClicked(user);
             }
+        };
+
+        ws.onerror = function(error) {
+            console.error('WebSocket Error: ', error);
         };
 
         document.getElementById('startButton').onclick = function() {
